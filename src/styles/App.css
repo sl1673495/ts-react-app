@@ -12,11 +12,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  padding-top: 10vh;
   font-size: calc(10px + 2vmin);
   color: white;
 }
 
 .App-link {
   color: #09d3ac;
+}
+
+.done {
+  text-decoration: line-through;
+  color: rgb(67, 236, 67);
+}
+
+.todo-form {
+  margin-bottom: 12px;
+}
+
+.todo-input {
+  margin-right: 8px;
 }
