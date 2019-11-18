@@ -1,44 +1,322 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# 编写第一个 TypeScript 程序
 
-## Available Scripts
+## 类型注解
 
-In the project directory, you can run:
+```typescript
+function greeter(person: string) {
+  return "Hello, " + person;
+}
 
-### `yarn start`
+let user = "Yee";
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+console.log(greeter(user));
+```
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+## 接口
 
-### `yarn test`
+让我们继续扩展这个示例应用。这里我们使用接口来描述一个拥有 `firstName` 和 `lastName` 字段的对象。 在 `TypeScript` 里，只在两个类型内部的结构兼容，那么这两个类型就是兼容的。 这就允许我们在实现接口时候只要保证包含了接口要求的结构就可以，而不必明确地使用 `implements` 语句。
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```typescript
+interface Person {
+  firstName: string;
+  lastName: string;
+}
 
-### `yarn build`
+function greeter(person: Person) {
+  return "Hello, " + person.firstName + " " + person.lastName;
+}
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+let user = {
+  firstName: "Yee",
+  lastName: "Huang",
+};
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+console.log(greeter(user));
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 类
 
-### `yarn eject`
+最后，让我们使用类来改写这个例子。 TypeScript 支持 JavaScript 的新特性，比如支持基于类的面向对象编程。
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+让我们创建一个 `User` 类，它带有一个构造函数和一些公共字段。因为类的字段包含了接口所需要的字段，所以他们能很好的兼容。
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+还要注意的是，我在类的声明上会注明所有的成员变量，这样比较一目了然。
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```typescript
+class User {
+  fullName: string;
+  firstName: string;
+  lastName: string;
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+  constructor(firstName: string, lastName: string) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.fullName = firstName + " " + lastName;
+  }
+}
 
-## Learn More
+interface Person {
+  firstName: string;
+  lastName: string;
+}
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+function greeter(person: Person) {
+  return "Hello, " + person.firstName + " " + person.lastName;
+}
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+let user = new User("Yee", "Huang");
+
+console.log(greeter(user));
+```
+
+# 基础类型
+
+## 布尔值
+
+```typescript
+let isDone: boolean = false;
+```
+
+## 数字
+
+```typescript
+let decLiteral: number = 20;
+```
+
+## 字符串
+
+```typescript
+let name: string = "bob";
+name = "smith";
+```
+
+## 数组
+
+```typescript
+let list: number[] = [1, 2, 3];
+```
+
+第二种方式是使用数组泛型，`Array<元素类型>`：
+
+```typescript
+let list: Array<number> = [1, 2, 3];
+```
+
+## 元组 Tuple
+
+元组类型允许表示一个已知元素数量和类型的数组，各元素的类型不必相同。 比如，你可以定义一对值分别为 `string` 和 `number` 类型的元组。
+
+```typescript
+let x: [string, number];
+x = ["hello", 10]; // OK
+x = [10, "hello"]; // Error
+```
+
+## 枚举
+
+`enum` 类型是对 JavaScript 标准数据类型的一个补充。 像 C# 等其它语言一样，使用枚举类型可以为一组数值赋予友好的名字。
+
+```typescript
+enum Color {
+  Red,
+  Green,
+  Blue,
+}
+let c: Color = Color.Green;
+```
+
+## any
+
+有时候，我们会想要为那些在编程阶段还不清楚类型的变量指定一个类型。 这些值可能来自于动态的内容，比如来自用户输入或第三方代码库。 这种情况下，我们不希望类型检查器对这些值进行检查而是直接让它们通过编译阶段的检查。 那么我们可以使用 `any` 类型来标记这些变量：
+
+```typescript
+let notSure: any = 4;
+notSure = "maybe a string instead";
+notSure = false; // 也可以是个 boolean
+```
+
+在对现有代码进行改写的时候，`any` 类型是十分有用的，它允许你在编译时可选择地包含或移除类型检查。并且当你只知道一部分数据的类型时，`any` 类型也是有用的。 比如，你有一个数组，它包含了不同的类型的数据：
+
+```typescript
+let list: any[] = [1, true, "free"];
+
+list[1] = 100;
+```
+
+## void
+
+某种程度上来说，`void` 类型像是与 `any` 类型相反，它表示没有任何类型。 当一个函数没有返回值时，你通常会见到其返回值类型是 `void`：
+
+```typescript
+function warnUser(): void {
+  console.log("This is my warning message");
+}
+```
+
+声明一个 `void` 类型的变量没有什么大用，因为你只能为它赋予 `undefined` 和 `null`：
+
+```typescript
+let unusable: void = undefined;
+```
+
+## null 和 undefined
+
+TypeScript 里，`undefined` 和 `null` 两者各自有自己的类型分别叫做 `undefined` 和 `null`。 和 `void` 相似，它们的本身的类型用处不是很大：
+
+```typescript
+let u: undefined = undefined;
+let n: null = null;
+```
+
+## never
+
+`never` 类型表示的是那些永不存在的值的类型。 例如， `never` 类型是那些总是会抛出异常或根本就不会有返回值的函数表达式或箭头函数表达式的返回值类型； 变量也可能是 `never` 类型，当它们被永不为真的类型保护所约束时。
+
+`never` 类型是任何类型的子类型，也可以赋值给任何类型；然而，没有类型是 `never` 的子类型或可以赋值给`never` 类型（除了 `never` 本身之外）。 即使 `any` 也不可以赋值给 `never`。
+
+下面是一些返回 `never` 类型的函数：
+
+```typescript
+// 返回never的函数必须存在无法达到的终点
+function error(message: string): never {
+  throw new Error(message);
+}
+```
+
+## object
+
+`object` 表示非原始类型，也就是除 `number`，`string`，`boolean`，`symbol`，`null`或`undefined` 之外的类型。
+
+使用 `object` 类型，就可以更好的表示像 `Object.create` 这样的 `API`。例如：
+
+```typescript
+declare function create(o: object | null): void;
+
+create({ prop: 0 }); // OK
+create(null); // OK
+
+create(42); // Error
+create("string"); // Error
+create(false); // Error
+create(undefined); // Error
+```
+
+## 类型断言
+
+有时候你会遇到这样的情况，你会比 TypeScript 更了解某个值的详细信息。 通常这会发生在你清楚地知道一个实体具有比它现有类型更确切的类型。
+
+通过类型断言这种方式可以告诉编译器，“相信我，我知道自己在干什么”。 类型断言好比其它语言里的类型转换，但是不进行特殊的数据检查和解构。 它没有运行时的影响，只是在编译阶段起作用。 TypeScript 会假设你，程序员，已经进行了必须的检查。
+
+```typescript
+let someValue: any = "this is a string";
+
+let strLength: number = (someValue as string).length;
+```
+
+两种形式是等价的。 至于使用哪个大多数情况下是凭个人喜好；然而，当你在 TypeScript 里使用 JSX 时，只有 `as` 语法断言是被允许的。
+
+# 接口
+
+## 可选属性
+
+接口里的属性不全都是必需的。 有些是只在某些条件下存在，或者根本不存在。例如给函数传入的参数对象中只有部分属性赋值了。
+
+```typescript
+interface Square {
+  color: string;
+  area: number;
+}
+
+interface SquareConfig {
+  color?: string;
+  width?: number;
+}
+
+function createSquare(config: SquareConfig): Square {
+  let newSquare = { color: "white", area: 100 };
+  if (config.color) {
+    newSquare.color = config.color;
+  }
+  if (config.width) {
+    newSquare.area = config.width * config.width;
+  }
+  return newSquare;
+}
+
+let mySquare = createSquare({ color: "black" });
+```
+
+带有可选属性的接口与普通的接口定义差不多，只是在可选属性名字定义的后面加一个 `?` 符号。
+
+## 只读属性
+
+一些对象属性只能在对象刚刚创建的时候修改其值。 你可以在属性名前用 `readonly` 来指定只读属性:
+
+```typescript
+interface Point {
+  readonly x: number;
+  readonly y: number;
+}
+```
+
+# 泛型
+
+## 灵活的类型传参
+
+```ts
+function make(args) {
+  return args;
+}
+
+make([]);
+```
+
+这样子是没有任何提示的，ts 没法推断出返回值和传入的参数是同一个类型。
+
+```ts
+function make<T>(args: T) {
+  return args;
+}
+
+const num = make<number>(2);
+```
+
+此时再输入`num.` 就会出现提示。
+
+也可以简化成
+
+```ts
+const num = make(2);
+```
+
+此时 T 会自动被推断为 number 类型。
+
+## 泛型的类型推断
+
+现在有个需求，函数 withA 接受一个对象，并且向这个对象上混入 a 属性并返回。
+
+```ts
+function withA(arg: object): object & { a: number } {
+  return Object.assign(arg, { a: 2 });
+}
+
+const result = withA({ b: 2 });
+```
+
+此时不会提示 result 上应有的 b 字段，因为 ts 并不知道返回的对象拥有传入对象身上的属性。
+
+利用泛型来约束入参和出参是相同的结构，再利用联合类型增加额外属性。
+
+```ts
+function withA<T>(arg: T): T & { a: number } {
+  return Object.assign(arg, { a: 2 });
+}
+
+const result = withA({ b: 2 });
+```
+
+## 例如 React 的 useState
+
+```ts
+function useState<T>(initialState: T): {};
+```
