@@ -16,22 +16,40 @@ let todos = [
   }
 ]
 
-type Url = '/api/todos' | '/api/toggle' | '/api/add'
+
+export enum Urls {
+  TODOS = '/api/todos',
+  TOGGLE = '/api/toggle',
+  ADD = '/api/add',
+}
 
 type Todo = typeof todos[0]
+type Todos = typeof todos
+
+type Key<U> = U extends Urls.TOGGLE
+? 'toggle'
+: U extends Urls.ADD
+  ? 'add'
+  : U extends Urls.TODOS
+    ? 'todos'
+    : 'other'
+
 
 type Payload<U> = {
   toggle: number
   add: Todo,
+  todos: any,
   other: any
-}[U extends '/api/toggle'
-  ? 'toggle'
-  : U extends '/api/add'
-    ? 'add'
-    : 'other'
-]
+}[Key<U>]
 
-function axios <T, U extends Url = any>(url: U, payload?: Payload<U>): Promise<T> | never {
+type Result<U> = {
+  toggle: boolean
+  add: boolean,
+  todos: Todos
+  other: any
+}[Key<U>]
+
+function axios <U extends Urls>(url: U, payload?: Payload<U>): Promise<Result<U>> | never {
   let data
   switch (url) {
     case '/api/todos': {
@@ -43,10 +61,12 @@ function axios <T, U extends Url = any>(url: U, payload?: Payload<U>): Promise<T
       if (todo) {
         todo.done = !todo.done
       }
+      data = true
       break
     }
     case '/api/add': {
       todos.push(payload as Todo)
+      data = true
       break
     }
     default: {

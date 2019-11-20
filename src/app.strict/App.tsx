@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import classNames from 'classnames'
 import TodoForm from './TodoForm'
-import axios from './api/axios.strict'
-import './styles/App.css'
+import axios, {Urls} from '../api/axios.strict'
+import '../styles/App.css'
 
 type Todo = {
   id: number
@@ -18,7 +18,7 @@ const App: React.FC = () => {
   const [todos, setTodos] = useState<Todos>([])
 
   const refreshTodos = () => {
-    axios<Todos>('/api/todos').then(setTodos)
+    axios(Urls.TODOS).then(setTodos)
   }
 
   useEffect(() => {
@@ -26,7 +26,7 @@ const App: React.FC = () => {
   }, [])
 
   const onToggleTodo = async (todo: Todo) => {
-    await axios('/api/toggle', todo.id)
+    await axios(Urls.TOGGLE, todo.id)
     refreshTodos()
   }
 

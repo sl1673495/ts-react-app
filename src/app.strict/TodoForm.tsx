@@ -1,5 +1,5 @@
 import React from 'react'
-import axios from './api/axios.strict'
+import axios, {Urls} from '../api/axios.strict'
 
 interface Props {
   refreshTodos: () => void
@@ -22,7 +22,7 @@ const TodoForm: React.FC<Props> = ({ refreshTodos }) => {
     }
     
     if (name.trim()) {
-      axios('/api/add', newTodo)
+      axios(Urls.ADD, newTodo)
       refreshTodos()
       setName('')
     }

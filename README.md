@@ -1,3 +1,10 @@
+# 为什么要用TypeScript
+1. TypeScript 解决了什么痛点？ - justjavac的回答 - 知乎
+https://www.zhihu.com/question/308844713/answer/574423626
+
+2. 渐进式，就算前期用了很多any，关键接口的类型定义已经能带来很多便利。
+
+3. 公司统一技术栈。
 # 编写第一个 TypeScript 程序
 
 ## 类型注解
@@ -203,9 +210,7 @@ create(undefined); // Error
 
 ## 类型断言
 
-有时候你会遇到这样的情况，你会比 TypeScript 更了解某个值的详细信息。 通常这会发生在你清楚地知道一个实体具有比它现有类型更确切的类型。
-
-通过类型断言这种方式可以告诉编译器，“相信我，我知道自己在干什么”。 类型断言好比其它语言里的类型转换，但是不进行特殊的数据检查和解构。 它没有运行时的影响，只是在编译阶段起作用。 TypeScript 会假设你，程序员，已经进行了必须的检查。
+有时候你会遇到这样的情况，你会比 TypeScript 更了解某个值的详细信息。
 
 ```typescript
 let someValue: any = "this is a string";
@@ -213,7 +218,64 @@ let someValue: any = "this is a string";
 let strLength: number = (someValue as string).length;
 ```
 
-两种形式是等价的。 至于使用哪个大多数情况下是凭个人喜好；然而，当你在 TypeScript 里使用 JSX 时，只有 `as` 语法断言是被允许的。
+# 高级类型
+
+## 联合类型
+```ts
+export type Union = string | number
+
+export let u:Union
+
+u = '2'
+
+u = 3
+```
+
+## 交叉类型
+```ts
+type Foo = {
+  foo: any
+}
+
+type Bar = {
+  bar : any
+}
+type Intersection =  Foo & Bar
+
+let i: Intersection = {
+  foo: 'foo',
+  bar: 'bar',
+}
+```
+
+# 类型收缩
+举个简单的例子，根据某个值是Foo类型或Bar类型，分别做不同的处理。
+```ts
+type Unknown = Foo | Bar
+function judge(val: Unknown): void {
+  if (val.hasOwnProperty('foo')) {
+    (val as Foo).foo = 'ok'
+  }else if (val.hasOwnProperty('bar')) {
+    (val as Bar).bar = 'ok'
+  }
+}
+```
+这里要用到类型断言，因为TypeSciprt不会根据hasOwnProperty的结果作为类型判断的依据，但是它提供了另一种方式`类型守卫`
+```ts
+// 类型守卫方案
+function isFoo(val: any): val is Foo {
+  return val.hasOwnProperty('foo')
+}
+
+function judge2(val: Unknown): void {
+  if (isFoo(val)) {
+    val.foo = 'ok'
+  }else {
+    // 自动被推断为Bar
+    val.bar = 'ok'
+  }
+}
+```
 
 # 接口
 
@@ -291,6 +353,21 @@ const num = make(2);
 
 此时 T 会自动被推断为 number 类型。
 
+## 在泛型约束中使用类型参数
+
+你可以声明一个类型参数，且它被另一个类型参数所约束。 比如，现在我们想要用属性名从对象里获取这个属性。 并且我们想要确保这个属性存在于对象 `obj` 上，因此我们需要在这两个类型之间使用约束。
+
+```typescript
+function getProperty<T, K extends keyof T> (obj: T, key: K ) {
+  return obj[key]
+}
+
+let x = {a: 1, b: 2, c: 3, d: 4}
+
+getProperty(x, 'a') // okay
+getProperty(x, 'm') // error
+```
+
 ## 泛型的类型推断
 
 现在有个需求，函数 withA 接受一个对象，并且向这个对象上混入 a 属性并返回。
@@ -318,5 +395,56 @@ const result = withA({ b: 2 });
 ## 例如 React 的 useState
 
 ```ts
-function useState<T>(initialState: T): {};
+
+function useState<S>(initialState: S): [S, SetState<S>] {
+  let state = initialState;
+  const setState = (newState: S) => {
+    state = newState;
+    return state;
+  };
+
+  return [state, setState];
+}
+
+type SetState<S> = (newState: S) => void;
+
 ```
+
+## 加上回调函数的版本
+```ts
+type SetState<S> = (stateOrFn: S | Callback<S>) => void;
+type Callback<S> = (prevState: S) => S
+
+function useState<S>(initialState: S): [S, SetState<S>] {
+  let state = initialState;
+
+  const setState: SetState<S> = (newState) => {
+    if (isFunc(newState)) {
+      state = newState(state)
+    }else {
+      state = newState;
+    }
+    return state;
+  };
+
+  return [state, setState];
+}
+
+function isFunc(val: any): val is Function {
+  return typeof val === 'function'
+}
+```
+
+## 教程分享
+
+### 入门
+TypeScript入门教程  
+https://github.com/joye61/typescript-tutorial
+
+
+### 进阶
+巧用 TypeScript系列 一共五篇  
+https://juejin.im/post/5c8a518ee51d455e4d719e2e
+
+TS 一些工具泛型的使用及其实现  
+https://zhuanlan.zhihu.com/p/40311981
