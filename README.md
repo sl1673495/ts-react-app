@@ -1,10 +1,12 @@
 # 为什么要用TypeScript
+
 1. TypeScript 解决了什么痛点？ - justjavac的回答 - 知乎
-https://www.zhihu.com/question/308844713/answer/574423626
+   https://www.zhihu.com/question/308844713/answer/574423626
 
 2. 渐进式，就算前期用了很多any，关键接口的类型定义已经能带来很多便利。
 
 3. 公司统一技术栈。
+
 # 编写第一个 TypeScript 程序
 
 ## 类型注解
@@ -206,6 +208,7 @@ create(42); // Error
 create("string"); // Error
 create(false); // Error
 create(undefined); // Error
+
 ```
 
 ## 类型断言
@@ -216,11 +219,13 @@ create(undefined); // Error
 let someValue: any = "this is a string";
 
 let strLength: number = (someValue as string).length;
+
 ```
 
 # 高级类型
 
 ## 联合类型
+
 ```ts
 export type Union = string | number
 
@@ -229,9 +234,11 @@ export let u:Union
 u = '2'
 
 u = 3
+
 ```
 
 ## 交叉类型
+
 ```ts
 type Foo = {
   foo: any
@@ -246,12 +253,35 @@ let i: Intersection = {
   foo: 'foo',
   bar: 'bar',
 }
+
 ```
 
-# 类型收缩
-举个简单的例子，根据某个值是Foo类型或Bar类型，分别做不同的处理。
+## 索引类型
+
+索引类型的查询操作符 keyof T 表示类型 T 的所有公共属性的字面量联合类型
 ```ts
+interface Obj {
+  a: number
+  b: string
+}
+let key: keyof Obj // let key: "a" | "b"
+```
+
+# 类型守卫
+
+举个简单的例子，根据某个值是Foo类型或Bar类型，分别做不同的处理。
+
+```ts
+type Foo = {
+  foo: any
+}
+
+type Bar = {
+  bar : any
+}
+
 type Unknown = Foo | Bar
+
 function judge(val: Unknown): void {
   if (val.hasOwnProperty('foo')) {
     (val as Foo).foo = 'ok'
@@ -259,8 +289,11 @@ function judge(val: Unknown): void {
     (val as Bar).bar = 'ok'
   }
 }
+
 ```
+
 这里要用到类型断言，因为TypeSciprt不会根据hasOwnProperty的结果作为类型判断的依据，但是它提供了另一种方式`类型守卫`
+
 ```ts
 // 类型守卫方案
 function isFoo(val: any): val is Foo {
@@ -275,6 +308,7 @@ function judge2(val: Unknown): void {
     val.bar = 'ok'
   }
 }
+
 ```
 
 # 接口
@@ -306,6 +340,7 @@ function createSquare(config: SquareConfig): Square {
 }
 
 let mySquare = createSquare({ color: "black" });
+
 ```
 
 带有可选属性的接口与普通的接口定义差不多，只是在可选属性名字定义的后面加一个 `?` 符号。
@@ -319,6 +354,56 @@ interface Point {
   readonly x: number;
   readonly y: number;
 }
+
+```
+## 任意属性  
+
+用任意的字符串索引，使其可以得到任意的结果。  
+
+```ts
+interface Person {
+  name: string
+  age: number
+  [x: string]: any
+}
+
+let man: Person = {
+  name: 'James',
+  age: 30,
+  height: '180cm'
+}
+```
+
+# 函数
+## 函数类型接口
+```ts
+interface Add {
+  (x: number, y: number): number
+}
+
+let add: Add = (a, b) => a + b
+```
+
+
+## 函数类型别名
+除此之外，还有一种更简洁的方式就是使用类型别名  
+
+类型别名使用 type 关键字  
+
+```ts
+type Add = (x: number, y: number) => number
+
+let add: Add = (a, b) => a + b
+```
+
+## 函数重载
+
+```ts
+function overload (a: number, b: number): number
+function overload (a: string, b: string): string
+function overload (a: any, b: any): any {
+  return a + b
+}
 ```
 
 # 泛型
@@ -331,6 +416,7 @@ function make(args) {
 }
 
 make([]);
+
 ```
 
 这样子是没有任何提示的，ts 没法推断出返回值和传入的参数是同一个类型。
@@ -341,6 +427,7 @@ function make<T>(args: T) {
 }
 
 const num = make<number>(2);
+
 ```
 
 此时再输入`num.` 就会出现提示。
@@ -349,6 +436,7 @@ const num = make<number>(2);
 
 ```ts
 const num = make(2);
+
 ```
 
 此时 T 会自动被推断为 number 类型。
@@ -366,6 +454,7 @@ let x = {a: 1, b: 2, c: 3, d: 4}
 
 getProperty(x, 'a') // okay
 getProperty(x, 'm') // error
+
 ```
 
 ## 泛型的类型推断
@@ -378,6 +467,7 @@ function withA(arg: object): object & { a: number } {
 }
 
 const result = withA({ b: 2 });
+
 ```
 
 此时不会提示 result 上应有的 b 字段，因为 ts 并不知道返回的对象拥有传入对象身上的属性。
@@ -390,12 +480,12 @@ function withA<T>(arg: T): T & { a: number } {
 }
 
 const result = withA({ b: 2 });
+
 ```
 
 ## 例如 React 的 useState
 
 ```ts
-
 function useState<S>(initialState: S): [S, SetState<S>] {
   let state = initialState;
   const setState = (newState: S) => {
@@ -408,43 +498,25 @@ function useState<S>(initialState: S): [S, SetState<S>] {
 
 type SetState<S> = (newState: S) => void;
 
-```
 
-## 加上回调函数的版本
-```ts
-type SetState<S> = (stateOrFn: S | Callback<S>) => void;
-type Callback<S> = (prevState: S) => S
-
-function useState<S>(initialState: S): [S, SetState<S>] {
-  let state = initialState;
-
-  const setState: SetState<S> = (newState) => {
-    if (isFunc(newState)) {
-      state = newState(state)
-    }else {
-      state = newState;
-    }
-    return state;
-  };
-
-  return [state, setState];
-}
-
-function isFunc(val: any): val is Function {
-  return typeof val === 'function'
-}
 ```
 
 ## 教程分享
 
 ### 入门
-TypeScript入门教程  
-https://github.com/joye61/typescript-tutorial
 
+TypeScript Handbook入门教程
+https://zhongsp.gitbooks.io/typescript-handbook/content/
 
 ### 进阶
+
 巧用 TypeScript系列 一共五篇  
 https://juejin.im/post/5c8a518ee51d455e4d719e2e
 
 TS 一些工具泛型的使用及其实现  
 https://zhuanlan.zhihu.com/p/40311981
+
+### 实验
+
+TypeScript学习乐园 有任何想法都可以在上面编写尝试
+https://www.tslang.cn/play/index.html

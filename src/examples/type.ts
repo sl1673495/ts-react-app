@@ -24,7 +24,6 @@ let i: Intersection = {
 }
 
 // 类型收缩
-// TODO: asd
 type Unknown = Foo | Bar
 function judge(val: Unknown): void {
   if (val.hasOwnProperty('foo')) {
@@ -47,3 +46,5 @@ function judge2(val: Unknown): void {
     val.bar = 'ok'
   }
 }
+
+export {}
