@@ -26,9 +26,9 @@ export enum Urls {
 type Todo = typeof todos[0]
 type Todos = typeof todos
 
-type Key<U> = 
+type Key<U> =
   U extends Urls.TOGGLE ? 'toggle': 
-  U extends Urls.ADD? 'add': 
+  U extends Urls.ADD ? 'add': 
   U extends Urls.TODOS ? 'todos': 
   'other'
 
@@ -46,11 +46,11 @@ type Result<U> = {
   other: any
 }[Key<U>]
 
-// type UrlNoPayload =  Urls.TODOS
-// type UrlWithPayload = Exclude<Urls, UrlNoPayload>
+type UrlNoPayload =  Urls.TODOS
+type UrlWithPayload = Exclude<Urls, UrlNoPayload>
 
-// function axios <U extends UrlNoPayload>(url: U): Promise<Result<U>>
-// function axios <U extends UrlWithPayload>(url: U, payload: Payload<U>): Promise<Result<U>> | never
+function axios <U extends UrlNoPayload>(url: U): Promise<Result<U>>
+function axios <U extends UrlWithPayload>(url: U, payload: Payload<U>): Promise<Result<U>> | never
 function axios <U extends Urls>(url: U, payload?: Payload<U>): Promise<Result<U>> | never {
   let data
   switch (url) {

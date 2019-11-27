@@ -518,5 +518,5 @@ https://zhuanlan.zhihu.com/p/40311981
 
 ### 实验
 
-TypeScript学习乐园 有任何想法都可以在上面编写尝试
-https://www.tslang.cn/play/index.html
+TypeScript Playground 有任何想法都可以在上面编写尝试
+https://www.typescriptlang.org/play/
