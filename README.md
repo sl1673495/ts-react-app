@@ -1,5 +1,5 @@
 # 本仓库代码对应源码解读
-React + TypeScript + Hook 带你手把手打造类型安全的应用。
+React + TypeScript + Hook 带你手把手打造类型安全的应用。  
 https://juejin.im/post/5dddde68e51d4541c24658c1
 
 # 为什么要用TypeScript
